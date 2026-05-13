@@ -1,27 +1,27 @@
-services:
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/conf:/etc/nginx/conf.d
-    depends_on:
-      - webapp
-
-  webapp:
-    build: ./app
-    environment:
-      - DB_HOST=database
+name: Publicando minha imagem automaticamente
+# Definindo onde será o gatilho
+on:
+  push:
+    branches: [main]
+# Serviço base, VM com Ubuntu    
+jobs:
+  CI:
+    runs-on: ubuntu-latest
     
-    depends_on:
-      - database
-
-  database:
-    image: postgres:13
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=senha
-
-volumes:
-  db_data:  
+    steps:
+      - uses: actions/checkout@v3
+    
+      - name: Docker Login
+        uses: docker/login-action@v2.1.0
+        with:
+          username: ${{ secrets.SEC_USER_DOCKER }}  
+          password: ${{ secrets.SEC_PASSWD_DOCKER }}
+          
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v3.2.0
+        with:
+          context: .
+          push: true
+          tags: |
+            mariajulia16092004/applinda:v2.2
+            mariajulia16092004/applinda:latest
