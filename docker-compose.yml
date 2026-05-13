@@ -1,0 +1,27 @@
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+    depends_on:
+      - webapp
+
+  webapp:
+    build: ./app
+    environment:
+      - DB_HOST=database
+    
+    depends_on:
+      - database
+
+  database:
+    image: postgres:13
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=senha
+
+volumes:
+  db_data:  
